@@ -2,7 +2,7 @@
 #include <iterator>
 #include <string>
 #include <algorithm>
-#include "sbcspi/sbcspi.h"
+#include "abcspie/abcspie.h"
 #include "vigenererss/vigenere.h"
 #include "vigenererss/vigenereDiferente.h"
 
@@ -57,11 +57,11 @@ int main(int argc, char *argv[])
         if (vigenereDiferente)
         {
             output = cryptDiferente(input);
-            output = SBCS314::encode(output, key);
+            output = ABCS31427::encode(output, key);
         }
         else
         {
-            output = SBCS314::encode(input, key);
+            output = ABCS31427::encode(input, key);
             output = crypt(output, key, 5);
         }
         cout << output << endl;
@@ -71,13 +71,13 @@ int main(int argc, char *argv[])
     {
         if (vigenereDiferente)
         {
-            output = SBCS314::decode(input, key);
+            output = ABCS31427::decode(input, key);
             output = decryptDiferente(output);
         }
         else
         {
             output = decrypt(input, key, 5);
-            output = SBCS314::decode(output, key);
+            output = ABCS31427::decode(output, key);
         }
         cout << output << endl;
     }

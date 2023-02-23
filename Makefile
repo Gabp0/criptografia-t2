@@ -1,16 +1,16 @@
 # Makefile
 # feito por Gabriel Pontarolo
 CC = g++
-TARGET = rgps
+TARGET = argps
 
 # flags
 CPPFLAGS = -Wall -g
 LDLIBS = -lm -lgmp
 
 # diretorios fonte
-VPATH = src:src/sbcspi:src/vigenererss 
+VPATH = src:src/abcspie:src/vigenererss 
 
-objs = main.o vigenere.o common.o vigenereDiferente.o sbcspi.o
+objs = main.o vigenere.o common.o vigenereDiferente.o abcspie.o
 
 .PHONY: all clean purge
 
@@ -18,18 +18,18 @@ all: $(TARGET)
 
 # ligacao
 $(TARGET): $(objs)
-	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o rgps
+	$(CC) $(CPPFLAGS) $(LDLIBS) $(objs) -o $(TARGET)
 
 # compilacao
-main.o: main.cpp sbcspi.h vigenere.h vigenereDiferente.h
-sbcspi.o: sbcspi.cpp sbcspi.h
-vigenere.o: vigenere.cpp vigenere.h common.h
-vigenereDiferente.o: vigenereDiferente.cpp vigenereDiferente.h common.h
-common.o: common.cpp common.h
+main.o: abcspie.h vigenere.h vigenereDiferente.h
+abcspie.o: abcspie.h
+vigenere.o: vigenere.h common.h
+vigenereDiferente.o: vigenereDiferente.h common.h
+common.o: common.h
 
 # limpeza
 clean:
 	-rm -f $(objs) *~
 purge: clean
-	-rm -f rgps
+	-rm -f $(TARGET)
 

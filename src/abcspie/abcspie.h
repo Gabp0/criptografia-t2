@@ -7,7 +7,7 @@
 
 using namespace std;
 
-class SBCS314
+class ABCS31427
 {
 private:
     static const int BLOCK_SIZE = 128; // tamanho maximo do bloco de texto
@@ -36,21 +36,24 @@ private:
     static string treatment(string input);
     static void initIrrPower(int pow);
     static string convertKey(string key);
+    static unsigned int offsetModE(int round);
+    static unsigned int offsetModPi(int round);
 
     static void initSBox(string key);
 
-    static string shiftRow(string sub, int pos);
+    static string shiftRowsE(string sub, unsigned int offset, int s);
+    static string shiftRowsPi(string sub, unsigned int offset, int s);
 
     static string decryptRailfence(string sub, int key);
     static string encryptRailfence(string sub, int key);
-    static int railfenceKey(int round);
+    static int railfenceKey(unsigned int off_mod);
 
-    static string roundOffset(int round, string sub, int s);
+    static string roundOffset(string sub, unsigned int offset, int s);
     static string roundSBox(string sub);
 
     static char offsetChar(char c, int offset);
 
-    SBCS314() {}
+    ABCS31427() {}
 
 public:
     static string encode(string plaintext, string key);

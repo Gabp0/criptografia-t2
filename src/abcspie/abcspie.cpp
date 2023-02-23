@@ -1,4 +1,4 @@
-#include "sbcspi.h"
+#include "abcspie.h"
 #include <iostream>
 #include <math.h>
 #include <algorithm>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-string SBCS314::encode(string plaintext, string key)
+string ABCS31427::encode(string plaintext, string key)
 {
     string output;
 
@@ -17,7 +17,7 @@ string SBCS314::encode(string plaintext, string key)
     initSBox(key);
     key = convertKey(key);
     initIrrPower(stoi(key.substr(0, 2)));
-    SBCS314::f_offset = stoi(key.substr(2, 5));
+    ABCS31427::f_offset = stoi(key.substr(2, 5));
 
     for (size_t i = 0; i < ((plaintext.size() / BLOCK_SIZE) + 1); i++)
     { // separa em blocos de tamanho BLOCK_SIZE no maximo
@@ -25,9 +25,14 @@ string SBCS314::encode(string plaintext, string key)
 
         for (size_t j = 0; j < ITR_NUM; j++)
         {
+            unsigned int off_mod_pi = offsetModE(j);
+            unsigned int off_mod_e = offsetModE(j);
+
+            sub = shiftRowsE(sub, off_mod_e, 1);
             sub = roundSBox(sub);
-            sub = encryptRailfence(sub, railfenceKey(j));
-            sub = roundOffset(j, sub, 1);
+            sub = encryptRailfence(sub, railfenceKey(off_mod_e));
+            sub = roundOffset(sub, off_mod_pi, 1);
+            sub = shiftRowsPi(sub, off_mod_pi, 1);
         }
         output += sub;
     }
@@ -35,7 +40,7 @@ string SBCS314::encode(string plaintext, string key)
     return output;
 }
 
-string SBCS314::decode(string cypheredtext, string key)
+string ABCS31427::decode(string cypheredtext, string key)
 {
     string output;
 
@@ -43,7 +48,7 @@ string SBCS314::decode(string cypheredtext, string key)
     initSBox(key);
     key = convertKey(key);
     initIrrPower(stoi(key.substr(0, 2)));
-    SBCS314::f_offset = stoi(key.substr(2, 5));
+    ABCS31427::f_offset = stoi(key.substr(2, 5));
 
     for (size_t i = 0; i < ((cypheredtext.size() / BLOCK_SIZE) + 1); i++)
     { // separa em blocos de tamanho BLOCK_SIZE no maximo
@@ -51,9 +56,14 @@ string SBCS314::decode(string cypheredtext, string key)
 
         for (int j = ITR_NUM - 1; j >= 0; j--)
         { // ITR_NUM rodadas
-            sub = roundOffset(j, sub, -1);
-            sub = decryptRailfence(sub, railfenceKey(j));
+            unsigned int off_mod_pi = offsetModE(j);
+            unsigned int off_mod_e = offsetModE(j);
+
+            sub = shiftRowsPi(sub, off_mod_e, -1);
+            sub = roundOffset(sub, off_mod_pi, -1);
+            sub = decryptRailfence(sub, railfenceKey(off_mod_e));
             sub = roundSBox(sub);
+            sub = shiftRowsE(sub, off_mod_e, -1);
         }
 
         output += sub;
@@ -62,11 +72,84 @@ string SBCS314::decode(string cypheredtext, string key)
     return output;
 }
 
-string SBSCS314::shiftRowS(string sub, int pos)
+unsigned int ABCS31427::offsetModE(int round)
 {
+    // inicializa lib gmp
+    mpz_t offset;
+    mpz_init(offset);
+    mpz_t ep_pos;
+    mpz_init(ep_pos);
+
+    // calcula a key da rodada atual
+    mpz_set_ui(offset, abs(~ABCS31427::f_offset)); // modulo do inverso do offset
+    mpz_pow_ui(offset, offset, pow(2, round));
+    mpz_mod_ui(ep_pos, offset, ep.size() - 3);
+
+    return mpz_get_ui(ep_pos);
 }
 
-string SBCS314::encryptRailfence(string sub, int key)
+unsigned int ABCS31427::offsetModPi(int round)
+{
+    // inicializa lib gmp
+    mpz_t offset;
+    mpz_init(offset);
+    mpz_t pip_pos;
+    mpz_init(pip_pos);
+
+    // calcula o offset da rodada atual
+    mpz_set_ui(offset, ABCS31427::f_offset);
+    mpz_pow_ui(offset, offset, pow(2, round));
+    mpz_mod_ui(pip_pos, offset, pip.size());
+
+    return mpz_get_ui(pip_pos);
+}
+
+string shiftRows(string sub, unsigned int shift, int s)
+{
+    shift = shift % sub.size();
+
+    if (s > 0)
+    {
+        string start = sub.substr(0, shift);
+        sub.erase(0, shift);
+        sub += start;
+    }
+    else
+    {
+        string end = sub.substr(sub.size() - shift, shift);
+        sub.erase(sub.size() - shift, shift);
+        sub = end + sub;
+    }
+
+    return sub;
+}
+
+string ABCS31427::shiftRowsE(string sub, unsigned int offset, int s)
+{
+    // calcula o shift
+    offset = ep.size() - offset;
+    unsigned int shift = (ep[offset] - '0') * 100 + (ep[offset - 1] - '0') * 10 + (ep[offset - 2] - '0');
+    shift = shift % sub.size();
+
+    return shiftRows(sub, shift, s);
+}
+
+string ABCS31427::shiftRowsPi(string sub, unsigned int offset, int s)
+{
+    // calcula o shift
+    offset = pip.size() - offset;
+    unsigned int shift = (pip[offset] - '0') * 100 + (pip[offset - 1] - '0') * 10 + (pip[offset - 2] - '0');
+    shift = shift % sub.size();
+
+    return shiftRows(sub, shift, s);
+}
+
+int ABCS31427::railfenceKey(unsigned int off_mod)
+{
+    return (ep[off_mod % ep.size()] - '0') * 10 + (ep[(off_mod % ep.size()) + 1] - '0') + 2;
+}
+
+string ABCS31427::encryptRailfence(string sub, int key)
 {
     int sl = sub.length();
     string cipheredtext = "";
@@ -109,7 +192,7 @@ string SBCS314::encryptRailfence(string sub, int key)
     return cipheredtext;
 }
 
-string SBCS314::decryptRailfence(string sub, int key)
+string ABCS31427::decryptRailfence(string sub, int key)
 {
     int sl = sub.length();
     string plaintext = "";
@@ -173,59 +256,31 @@ string SBCS314::decryptRailfence(string sub, int key)
     return plaintext;
 }
 
-int SBCS314::railfenceKey(int round)
-{
-    // inicializa lib gmp
-    mpz_t offset;
-    mpz_init(offset);
-    mpz_t ep_pos;
-    mpz_init(ep_pos);
-
-    // calcula a key da rodada atual
-    mpz_set_ui(offset, abs(~SBCS314::f_offset)); // modulo do inverso do offset
-    mpz_pow_ui(offset, offset, pow(2, round));
-    mpz_mod_ui(ep_pos, offset, ep.size() - 1);
-    unsigned int off_mod = mpz_get_ui(ep_pos);
-
-    return (ep[off_mod % ep.size()] - '0') * 10 + (ep[(off_mod % ep.size()) + 1] - '0') + 2;
-}
-
-string SBCS314::roundOffset(int round, string sub, int s)
+string ABCS31427::roundOffset(string sub, unsigned int offset, int s)
 // faz o offset do bloco
 {
-    // inicializa lib gmp
-    mpz_t offset;
-    mpz_init(offset);
-    mpz_t pip_pos;
-    mpz_init(pip_pos);
-
-    // calcula o offset da rodada atual
-    mpz_set_ui(offset, SBCS314::f_offset);
-    mpz_pow_ui(offset, offset, pow(2, round));
-    mpz_mod_ui(pip_pos, offset, pip.size());
-    unsigned int off_mod = mpz_get_ui(pip_pos);
 
     for (size_t k = 0; k < sub.size(); k++)
     { // faz o offset da letra
-        int coff = pip[(off_mod + k) % pip.size()] - '0';
+        int coff = pip[(offset + k) % pip.size()] - '0';
         sub[k] = offsetChar(sub[k], coff * s);
     }
 
     return sub;
 }
 
-string SBCS314::roundSBox(string sub)
+string ABCS31427::roundSBox(string sub)
 // passa o bloco pela s-box
 {
     for (size_t k = 0; k < sub.size(); k++)
     {
-        sub[k] = SBCS314::sbox[sub[k]];
+        sub[k] = ABCS31427::sbox[sub[k]];
     }
 
     return sub;
 }
 
-void SBCS314::initSBox(string key)
+void ABCS31427::initSBox(string key)
 // gera a sbox
 {
     string ascii(key);
@@ -257,11 +312,11 @@ void SBCS314::initSBox(string key)
     size_t asize = ASCII_U - ASCII_L + 1;
     for (size_t i = 0; i < asize; i++)
     { // gera o mapa
-        SBCS314::sbox[ascii[i]] = ascii[gf[i]];
+        ABCS31427::sbox[ascii[i]] = ascii[gf[i]];
     }
 }
 
-string SBCS314::convertKey(string key)
+string ABCS31427::convertKey(string key)
 // converte os valores em ascii dos caracteres da chave
 {
     string int_key;
@@ -275,7 +330,7 @@ string SBCS314::convertKey(string key)
     return int_key;
 }
 
-void SBCS314::initIrrPower(int pow)
+void ABCS31427::initIrrPower(int pow)
 // gera a potencia de pi
 {
     char pip_char[PIP_MAX];
@@ -287,17 +342,17 @@ void SBCS314::initIrrPower(int pow)
     mpz_pow_ui(irr, irr, pow);      // pi^key[0:1]
     mpz_get_str(pip_char, 10, irr); // converte novamente para char
 
-    SBCS314::pip = pip_char;
+    ABCS31427::pip = pip_char;
 
     mpz_set_str(irr, e_str, 10); // set o e
 
     mpz_pow_ui(irr, irr, pow);      // e^key[0:1]
     mpz_get_str(pip_char, 10, irr); // converte novamente para char
 
-    SBCS314::ep = pip_char;
+    ABCS31427::ep = pip_char;
 }
 
-string SBCS314::treatment(string input)
+string ABCS31427::treatment(string input)
 // substitui characteres nao visiveis ou unicode
 {
     for (char i : input)
@@ -311,7 +366,7 @@ string SBCS314::treatment(string input)
     return input;
 }
 
-char SBCS314::offsetChar(char c, int offset)
+char ABCS31427::offsetChar(char c, int offset)
 // offset dentro do range 22 a 126 da tabela ascii
 {
     int out = c + offset;
