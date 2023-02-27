@@ -15,7 +15,6 @@ struct Deck
 };
 
 // int *initDeck(int size);
-std::string outShuffleCypher(std::string data, std::string key);
-std::string outShuffleDeCypher(std::string data, std::string key);
+std::string outShuffle(std::string data, std::string key, bool decypher = false);
 
 #endif // !__SHUFFLE__

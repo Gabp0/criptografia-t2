@@ -28,9 +28,9 @@ int main(int argc, char *argv[])
 {
     string text = string("hamburguerdebatatacomfritasdefrangofritocommostardas");
     cout << text << endl;
-    string cypher = outShuffleCypher(text, "key");
+    string cypher = outShuffle(text, "key");
     cout << cypher << endl;
-    string deCypher = outShuffleDeCypher(cypher, "key");
+    string deCypher = outShuffle(cypher, "key", true);
     cout << deCypher << endl;
 
     // string output;
