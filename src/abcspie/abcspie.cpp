@@ -89,8 +89,12 @@ unsigned int ABCS31427::roundOffset(int round, bool inv, size_t mod)
         mpz_set_ui(offset, ABCS31427::f_offset);
     }
 
-    mpz_pow_ui(offset, offset, pow(2, round)); // offset^2^rodada
-    mpz_mod_ui(round_offset, offset, mod);     // offset % tamanho do numero
+    // potencia do offset pela rodada
+    // mpz_pow_ui(offset, offset, pow(2, round)); // <- lento
+
+    mpz_pow_ui(offset, offset, round);
+
+    mpz_mod_ui(round_offset, offset, mod); // offset % tamanho do numero
 
     unsigned int ui_roffset = mpz_get_ui(round_offset);
 

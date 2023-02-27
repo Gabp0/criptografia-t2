@@ -1,4 +1,4 @@
-# RGPS - Trabalho 1 de Criptografia
+# ARGPS - Trabalho 1 de Criptografia
 ## Feito por Gabriel Pontarolo e Rodrigo Soffner
  
 ### Compilação e execução:
@@ -6,23 +6,24 @@
 **É necessária a instalação da biblioteca GMP (https://gmplib.org/)**
  
 * Comando **make** faz a compilação dos fontes
-* **./rgps [-k chave] [-d] [-c] [-v]**
+* **./argps [-k chave] [-h] [-d] [-c] [-v] [-s]**
  * **-k** indica a chave para criptografia. Consiste de uma palavra composta de letras/números/símbolos de no mínimo 3 caracteres. Caso não especificada, a chave padrão utilizada é *nerfthis*;
  * **-d** faz a descriptografia do texto cifrado;
  * **-c** faz a criptografia do texto claro;
  * **-v** utiliza o algoritmo de vigenere diferente;
+ * **-s** utiliza apenas o algoritmo out-shuffle;
  * A entrada do texto é feita pela entrada padrão **stdin** e a saída pela saída padrão **stdout**
  * O algoritmo trabalha apenas com os caracteres entre *32* e *126* da tabela *ASCII*. Outros caracteres serão substituídos por *'X'*;
  
 ## Sobre:
  
-* Cifra de substituição composta por duas etapas executadas em sequência:
- * Criptografia feita a partir de uma iteração do SBCS314 seguida por 5 iterações do Vigenere
- * Decriptografia feita apatir de 5 iterações do Vigenre seguida por uma iteração do SBCS314
+* Cifra de transposição e substituição composta por três etapas executadas em sequência:
+ * Criptografia feita a partir de uma iteração do ABCS31427 seguida por 5 iterações do Vigenere
+ * Decriptografia feita apatir de 5 iterações do Vigenre seguida por uma iteração do ABCS31427
  
-### SBCS314
+### ABCS31427
  
-* Separa o texto claro em blocos de até 128 bytes e executa 16 rodadas dividas em duas partes:
+* Separa o texto claro em blocos de até 128 bytes e executa 16 rodadas dividas em cinco partes:
  * Cada caracter do texto é passado por uma caixa de substituição construída a partir da **chave** e um campo finito de tamanho 95 que representa os caracteres entre as posições 32 e 126 da tabela *ASCII*. A chave é posicionada antes do início da tabela, são retiradas as repetições e então cada símbolo é mapeado no seu inverso multiplicativo dentro do campo finito.
    * **Exemplo:**
        A primeira linha da tabela representa o caracter de entrada na tabela, a segunda o valor **w** atribuído ao caracter, a terceira o inverso multiplicativo **w'** dentro do GF(95), ou seja, **((w \* w') mod 96) == 1** (os valores que não possuem inverso dentro do campo foram mapeados para eles mesmos), e a quarta o caracter resultante.
