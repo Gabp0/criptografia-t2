@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
             output = ABCS31427::encode(output, key);
             output = crypt(output, key, 5);
         }
-        cout << output << endl;
+        cout << output;
     }
 
     if (decypher)
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
             output = ABCS31427::decode(output, key);
             output = outShuffle(output, key, true);
         }
-        cout << output << endl;
+        cout << output;
     }
 
     return EXIT_SUCCESS;
