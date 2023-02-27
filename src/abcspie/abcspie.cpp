@@ -25,13 +25,13 @@ string ABCS31427::encode(string plaintext, string key)
 
         for (size_t j = 0; j < ITR_NUM; j++)
         {
-            unsigned int off_mod_pi = offsetModE(j);
-            unsigned int off_mod_e = offsetModE(j);
+            unsigned int off_mod_pi = roundOffset(j, false, pip.size());
+            unsigned int off_mod_e = roundOffset(j, true, ep.size() - 3);
 
             sub = shiftRowsE(sub, off_mod_e, 1);
             sub = roundSBox(sub);
             sub = encryptRailfence(sub, railfenceKey(off_mod_e));
-            sub = roundOffset(sub, off_mod_pi, 1);
+            sub = blockOffset(sub, off_mod_pi, 1);
             sub = shiftRowsPi(sub, off_mod_pi, 1);
         }
         output += sub;
@@ -55,12 +55,12 @@ string ABCS31427::decode(string cypheredtext, string key)
         string sub = cypheredtext.substr(i * BLOCK_SIZE, BLOCK_SIZE);
 
         for (int j = ITR_NUM - 1; j >= 0; j--)
-        { // ITR_NUM rodadas
-            unsigned int off_mod_pi = offsetModE(j);
-            unsigned int off_mod_e = offsetModE(j);
+        {
+            unsigned int off_mod_pi = roundOffset(j, false, pip.size());
+            unsigned int off_mod_e = roundOffset(j, true, ep.size() - 3);
 
-            sub = shiftRowsPi(sub, off_mod_e, -1);
-            sub = roundOffset(sub, off_mod_pi, -1);
+            sub = shiftRowsPi(sub, off_mod_pi, -1);
+            sub = blockOffset(sub, off_mod_pi, -1);
             sub = decryptRailfence(sub, railfenceKey(off_mod_e));
             sub = roundSBox(sub);
             sub = shiftRowsE(sub, off_mod_e, -1);
@@ -70,6 +70,34 @@ string ABCS31427::decode(string cypheredtext, string key)
     }
 
     return output;
+}
+
+unsigned int ABCS31427::roundOffset(int round, bool inv, size_t mod)
+{
+    // inicializa lib gmp
+    mpz_t offset;
+    mpz_init(offset);
+    mpz_t round_offset;
+    mpz_init(round_offset);
+
+    if (inv) // usa o inverso do offset
+    {
+        mpz_set_ui(offset, abs(~ABCS31427::f_offset));
+    }
+    else
+    {
+        mpz_set_ui(offset, ABCS31427::f_offset);
+    }
+
+    mpz_pow_ui(offset, offset, pow(2, round)); // offset^2^rodada
+    mpz_mod_ui(round_offset, offset, mod);     // offset % tamanho do numero
+
+    unsigned int ui_roffset = mpz_get_ui(round_offset);
+
+    mpz_clear(offset);
+    mpz_clear(round_offset);
+
+    return ui_roffset;
 }
 
 unsigned int ABCS31427::offsetModE(int round)
@@ -256,7 +284,7 @@ string ABCS31427::decryptRailfence(string sub, int key)
     return plaintext;
 }
 
-string ABCS31427::roundOffset(string sub, unsigned int offset, int s)
+string ABCS31427::blockOffset(string sub, unsigned int offset, int s)
 // faz o offset do bloco
 {
 
@@ -350,6 +378,8 @@ void ABCS31427::initIrrPower(int pow)
     mpz_get_str(pip_char, 10, irr); // converte novamente para char
 
     ABCS31427::ep = pip_char;
+
+    mpz_clear(irr);
 }
 
 string ABCS31427::treatment(string input)

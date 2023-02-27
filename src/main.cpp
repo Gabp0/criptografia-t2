@@ -26,16 +26,6 @@ bool cmdOptionExists(char **begin, int size, const string &option)
 
 int main(int argc, char *argv[])
 {
-    // string text = string("Proin dui quam, laoreet quis lectus nec, vestibulum mattis libero. Phasellus ut tincidunt arcu, vestibulum tempor erat. Nulla blandit nisl nibh, non malesuada arcu ultrices a. Phasellus nisl magna, vehicula quis fringilla ut, aliquet vitae ligula. Aenean sit amet lectus mi. Nullam blandit lectus non ultricies dignissim. Fusce congue arcu felis, in gravida est dapibus vel. Nunc eleifend porttitor augue at fringilla. Nulla vehicula porttitor eleifend. Phasellus at velit vulputate erat accumsan lobortis. Phasellus eu metus id lorem ornare blandit. In neque ex, aliquet in arcu vitae, eleifend interdum ipsum. Sed nulla turpis, condimentum id nisl sed, semper semper nulla. Praesent et lacus consequat odio maximus tincidunt rutrum id lacus.");
-    // cout << text << endl;
-    // string ahhh = outShuffle(text, "key");
-    // cout << ahhh << endl;
-    // string deCypher = outShuffle(ahhh, "key", true);
-    // cout << deCypher << endl;
-
-    // cout << (text == deCypher) << endl;
-    // return 0;
-
     string output;
     string key = "nerfthis";
 

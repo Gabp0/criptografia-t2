@@ -39,6 +39,8 @@ private:
     static unsigned int offsetModE(int round);
     static unsigned int offsetModPi(int round);
 
+    static unsigned int roundOffset(int round, bool inv, size_t mod);
+
     static void initSBox(string key);
 
     static string shiftRowsE(string sub, unsigned int offset, int s);
@@ -48,7 +50,7 @@ private:
     static string encryptRailfence(string sub, int key);
     static int railfenceKey(unsigned int off_mod);
 
-    static string roundOffset(string sub, unsigned int offset, int s);
+    static string blockOffset(string sub, unsigned int offset, int s);
     static string roundSBox(string sub);
 
     static char offsetChar(char c, int offset);
