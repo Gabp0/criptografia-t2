@@ -19,8 +19,8 @@ Deck::Deck(int size)
 
 Deck::~Deck()
 {
-    if(deck == NULL)
-    return;
+    if (deck == NULL)
+        return;
     delete[] deck;
     deck = NULL;
 }
@@ -34,20 +34,19 @@ void Deck::printDeck()
     cout << endl;
 }
 
-// int *initDeck(int size)
-// {
-//     int *deck = new int[size];
-
-//     for (int i = 0; i < size; i++)
-//     {
-//         deck[i] = i;
-//     }
-
-//     return deck;
-// }
-
 void Deck::calculateOutShuffle(int itera)
 {
+    if (size < 2)
+        return;
+
+    if (size == 2)
+    { // Expecial Case
+        int buffer = deck[0];
+        deck[0] = deck[1];
+        deck[1] = buffer;
+        return;
+    }
+
     int bufferDeck[size];
     int half = floor(size / 2);
 
@@ -89,13 +88,6 @@ int keyToInt(string key, int maxValue)
     return intKey;
 }
 
-// 4        2
-// 8 	    3
-// 24 	    11
-// 52 	    8
-// 100 	    30
-// 1024 	10
-
 struct sizes
 {
     int deckSize;
@@ -106,6 +98,7 @@ struct sizes
 };
 
 sizes sizesTable[] = {
+    sizes(2, 1, 0),
     sizes(4, 2, 0),      // 4 DeckSize          2 OutShuffles
     sizes(8, 3, 0),      // 8 DeckSize 	        3 OutShuffles
     sizes(24, 11, 0),    // 24 DeckSize 	    11 OutShuffles
@@ -115,10 +108,10 @@ sizes sizesTable[] = {
 
 sizes findSuitableBlockSize(int dataSize)
 {
-    sizes suitableSize = sizes(1, 1, dataSize);
+    sizes suitableSize = sizes(1, 0, dataSize);
     for (sizes s : sizesTable)
     {
-        if (dataSize < s.deckSize * 3)
+        if (dataSize < s.deckSize * 2)
         {
             break;
         }
@@ -131,7 +124,8 @@ sizes findSuitableBlockSize(int dataSize)
 
 string outShuffle(string data, string key, bool decypher)
 {
-    if(data.size() < 2){
+    if (data.size() < 4)
+    {
         return data;
     }
 
@@ -139,10 +133,11 @@ string outShuffle(string data, string key, bool decypher)
 
     sizes shuffleSizes = findSuitableBlockSize(size);
     int keyInt = keyToInt(key, shuffleSizes.outShuffles);
-    if(decypher){
+    if (decypher)
+    {
         keyInt = shuffleSizes.outShuffles - keyInt;
     }
-    
+
     Deck deck = Deck(shuffleSizes.deckSize);
     deck.calculateOutShuffle(keyInt);
 
@@ -151,6 +146,7 @@ string outShuffle(string data, string key, bool decypher)
     string blockBuffer;
 
     int index;
+    int cyphered = 0;
 
     for (int i = 0; i < shuffleSizes.deckSize; i++)
     {
@@ -158,11 +154,19 @@ string outShuffle(string data, string key, bool decypher)
         index = deck.deck[i] * shuffleSizes.blockSize;
         for (int j = 0; j < shuffleSizes.blockSize; j++)
         {
-            // blockBuffer += dataChar[index + j];
-            // dataBuffer += outShuffle(blockBuffer, key, decypher);
-            dataBuffer += dataChar[index + j];
+            blockBuffer += dataChar[index + j];
+            // dataBuffer += dataChar[index + j];
+            cyphered++;
         }
+        dataBuffer += outShuffle(blockBuffer, key, decypher);
     }
+
+    blockBuffer = "";
+    for (int i = cyphered; i < (int)data.size(); i++)
+    {
+        blockBuffer += dataChar[i];
+    }
+    dataBuffer += outShuffle(blockBuffer, key, decypher);
 
     return dataBuffer;
 }

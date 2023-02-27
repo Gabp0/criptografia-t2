@@ -26,12 +26,15 @@ bool cmdOptionExists(char **begin, int size, const string &option)
 
 int main(int argc, char *argv[])
 {
-    // string text = string("hamburguerdebatatacomfritasdefrangofritocommostardas");
+    // string text = string("Proin dui quam, laoreet quis lectus nec, vestibulum mattis libero. Phasellus ut tincidunt arcu, vestibulum tempor erat. Nulla blandit nisl nibh, non malesuada arcu ultrices a. Phasellus nisl magna, vehicula quis fringilla ut, aliquet vitae ligula. Aenean sit amet lectus mi. Nullam blandit lectus non ultricies dignissim. Fusce congue arcu felis, in gravida est dapibus vel. Nunc eleifend porttitor augue at fringilla. Nulla vehicula porttitor eleifend. Phasellus at velit vulputate erat accumsan lobortis. Phasellus eu metus id lorem ornare blandit. In neque ex, aliquet in arcu vitae, eleifend interdum ipsum. Sed nulla turpis, condimentum id nisl sed, semper semper nulla. Praesent et lacus consequat odio maximus tincidunt rutrum id lacus.");
     // cout << text << endl;
-    // string cypher = outShuffle(text, "key");
-    // cout << cypher << endl;
-    // string deCypher = outShuffle(cypher, "key", true);
+    // string ahhh = outShuffle(text, "key");
+    // cout << ahhh << endl;
+    // string deCypher = outShuffle(ahhh, "key", true);
     // cout << deCypher << endl;
+
+    // cout << (text == deCypher) << endl;
+    // return 0;
 
     string output;
     string key = "nerfthis";
@@ -39,15 +42,37 @@ int main(int argc, char *argv[])
     bool decypher = cmdOptionExists(argv, argc, "-d");
     bool cypher = cmdOptionExists(argv, argc, "-c");
     bool vigenereDiferente = cmdOptionExists(argv, argc, "-v");
+    bool shuffle = cmdOptionExists(argv, argc, "-s");
+    bool help = cmdOptionExists(argv, argc, "-h");
+
+    if (help)
+    {
+        cout << "Opções para uso do software:"
+             << "\nEscolhas de modo: (Obrigatorio)"
+             << "\n\t-c - cypher"
+             << "\n\t-d - decipher"
+             << "\nEscolhas de algoritmo: (Opcional)"
+             << "\n\t-v - substitui o algoritmo de vingenere por uma versão modificada"
+             << "\n\t-s - apenas utiliza o algoritmo de out-shuffle"
+             << "\nUtilidades:"
+             << "\n\t-h - apresenta essa tela" << endl;
+        return EXIT_SUCCESS;
+    }
 
     if (decypher && cypher)
     {
-        perror("Opção '-d' e '-c' não podem ser utilizadas juntas");
+        perror("Opção '-d' e '-c' não podem ser utilizadas juntas\n\tUtilize -h para help");
         exit(EXIT_FAILURE);
     }
     if (!decypher && !cypher)
     {
-        perror("Faltando opção '-d' ou '-c");
+        perror("Faltando opção '-d' ou '-c\n\tUtilize -h para help");
+        exit(EXIT_FAILURE);
+    }
+
+    if (vigenereDiferente && shuffle)
+    {
+        perror("Opção '-v' e '-s' não podem ser utilizadas juntas\n\tUtilize -h para help");
         exit(EXIT_FAILURE);
     }
 
@@ -68,11 +93,14 @@ int main(int argc, char *argv[])
             output = cryptDiferente(output);
             output = ABCS31427::encode(output, key);
         }
+        else if (shuffle)
+        {
+        }
         else
         {
-            // output = outShuffle(input, key);
-            //output = ABCS31427::encode(output, key);
-            output = crypt(input, key, 5);
+            output = outShuffle(input, key);
+            output = ABCS31427::encode(output, key);
+            output = crypt(output, key, 5);
         }
         cout << output << endl;
     }
@@ -88,8 +116,8 @@ int main(int argc, char *argv[])
         else
         {
             output = decrypt(input, key, 5);
-            // output = ABCS31427::decode(output, key);
-            // output = outShuffle(output, key, true);
+            output = ABCS31427::decode(output, key);
+            output = outShuffle(output, key, true);
         }
         cout << output << endl;
     }
