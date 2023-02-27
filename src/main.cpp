@@ -5,6 +5,7 @@
 #include "abcspie/abcspie.h"
 #include "vigenererss/vigenere.h"
 #include "vigenererss/vigenereDiferente.h"
+#include "shuffle/shuffle.h"
 
 using namespace std;
 
@@ -25,62 +26,69 @@ bool cmdOptionExists(char **begin, int size, const string &option)
 
 int main(int argc, char *argv[])
 {
-    string output;
-    string key = "nerfthis";
+    string text = string("hamburguerdebatatacomfritasdefrangofritocommostardas");
+    cout << text << endl;
+    string cypher = outShuffleCypher(text, "key");
+    cout << cypher << endl;
+    string deCypher = outShuffleDeCypher(cypher, "key");
+    cout << deCypher << endl;
 
-    bool decypher = cmdOptionExists(argv, argc, "-d");
-    bool cypher = cmdOptionExists(argv, argc, "-c");
-    bool vigenereDiferente = cmdOptionExists(argv, argc, "-v");
+    // string output;
+    // string key = "nerfthis";
 
-    if (decypher && cypher)
-    {
-        perror("Opção '-d' e '-c' não podem ser utilizadas juntas");
-        exit(EXIT_FAILURE);
-    }
-    if (!decypher && !cypher)
-    {
-        perror("Faltando opção '-d' ou '-c");
-        exit(EXIT_FAILURE);
-    }
+    // bool decypher = cmdOptionExists(argv, argc, "-d");
+    // bool cypher = cmdOptionExists(argv, argc, "-c");
+    // bool vigenereDiferente = cmdOptionExists(argv, argc, "-v");
 
-    if (cmdOptionExists(argv, argc, "-k"))
-    {
-        key = getCmdOption(argv, argc, "-k");
-    }
+    // if (decypher && cypher)
+    // {
+    //     perror("Opção '-d' e '-c' não podem ser utilizadas juntas");
+    //     exit(EXIT_FAILURE);
+    // }
+    // if (!decypher && !cypher)
+    // {
+    //     perror("Faltando opção '-d' ou '-c");
+    //     exit(EXIT_FAILURE);
+    // }
 
-    istreambuf_iterator<char> begin(std::cin), end;
-    string input(begin, end);
-    input.pop_back();
+    // if (cmdOptionExists(argv, argc, "-k"))
+    // {
+    //     key = getCmdOption(argv, argc, "-k");
+    // }
 
-    if (cypher)
-    {
-        if (vigenereDiferente)
-        {
-            output = cryptDiferente(input);
-            output = ABCS31427::encode(output, key);
-        }
-        else
-        {
-            output = ABCS31427::encode(input, key);
-            output = crypt(output, key, 5);
-        }
-        cout << output << endl;
-    }
+    // istreambuf_iterator<char> begin(std::cin), end;
+    // string input(begin, end);
+    // input.pop_back();
 
-    if (decypher)
-    {
-        if (vigenereDiferente)
-        {
-            output = ABCS31427::decode(input, key);
-            output = decryptDiferente(output);
-        }
-        else
-        {
-            output = decrypt(input, key, 5);
-            output = ABCS31427::decode(output, key);
-        }
-        cout << output << endl;
-    }
+    // if (cypher)
+    // {
+    //     if (vigenereDiferente)
+    //     {
+    //         output = cryptDiferente(input);
+    //         output = ABCS31427::encode(output, key);
+    //     }
+    //     else
+    //     {
+    //         output = ABCS31427::encode(input, key);
+    //         output = crypt(output, key, 5);
+    //     }
+    //     cout << output << endl;
+    // }
+
+    // if (decypher)
+    // {
+    //     if (vigenereDiferente)
+    //     {
+    //         output = ABCS31427::decode(input, key);
+    //         output = decryptDiferente(output);
+    //     }
+    //     else
+    //     {
+    //         output = decrypt(input, key, 5);
+    //         output = ABCS31427::decode(output, key);
+    //     }
+    //     cout << output << endl;
+    // }
 
     return EXIT_SUCCESS;
 }
