@@ -19,7 +19,10 @@ Deck::Deck(int size)
 
 Deck::~Deck()
 {
-    delete deck;
+    if(deck == NULL)
+    return;
+    delete[] deck;
+    deck = NULL;
 }
 
 void Deck::printDeck()
@@ -45,7 +48,7 @@ void Deck::printDeck()
 
 void Deck::calculateOutShuffle(int itera)
 {
-    int *bufferDeck = new int[size];
+    int bufferDeck[size];
     int half = floor(size / 2);
 
     for (int i = 0; i < itera; i++)
@@ -60,8 +63,6 @@ void Deck::calculateOutShuffle(int itera)
         }
         memcpy(deck, bufferDeck, size * sizeof(int));
     }
-
-    delete bufferDeck;
 }
 
 int keyToInt(string key, int maxValue)
@@ -123,13 +124,17 @@ sizes findSuitableBlockSize(int dataSize)
         }
         suitableSize = s;
     }
-    suitableSize.blockSize = dataSize / suitableSize.deckSize;
+    suitableSize.blockSize = floor(dataSize / suitableSize.deckSize);
 
     return suitableSize;
 }
 
 string outShuffle(string data, string key, bool decypher)
 {
+    if(data.size() < 2){
+        return data;
+    }
+
     int size = data.size();
 
     sizes shuffleSizes = findSuitableBlockSize(size);
@@ -137,24 +142,24 @@ string outShuffle(string data, string key, bool decypher)
     if(decypher){
         keyInt = shuffleSizes.outShuffles - keyInt;
     }
-    cout << "Block Size: " << shuffleSizes.blockSize << " Deck Size: " << shuffleSizes.outShuffles << endl;
-
+    
     Deck deck = Deck(shuffleSizes.deckSize);
     deck.calculateOutShuffle(keyInt);
-    deck.printDeck();
 
     string dataBuffer;
     const char *dataChar = data.c_str();
+    string blockBuffer;
 
-    int blockQty = floor(size / shuffleSizes.blockSize);
-    int blockSizes = size / blockQty;
     int index;
 
-    for (int i = 0; i < blockQty; i++)
+    for (int i = 0; i < shuffleSizes.deckSize; i++)
     {
-        index = deck.deck[i] * blockSizes;
-        for (int j = 0; j < blockSizes; j++)
+        blockBuffer = "";
+        index = deck.deck[i] * shuffleSizes.blockSize;
+        for (int j = 0; j < shuffleSizes.blockSize; j++)
         {
+            // blockBuffer += dataChar[index + j];
+            // dataBuffer += outShuffle(blockBuffer, key, decypher);
             dataBuffer += dataChar[index + j];
         }
     }
