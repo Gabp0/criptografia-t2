@@ -83,7 +83,8 @@ int main(int argc, char *argv[])
 
     istreambuf_iterator<char> begin(std::cin), end;
     string input(begin, end);
-    input.pop_back();
+    // input.pop_back();
+    
 
     if (cypher)
     {
@@ -95,6 +96,7 @@ int main(int argc, char *argv[])
         }
         else if (shuffle)
         {
+            output = outShuffle(input, key);
         }
         else
         {
@@ -102,7 +104,6 @@ int main(int argc, char *argv[])
             output = ABCS31427::encode(output, key);
             output = crypt(output, key, 5);
         }
-        cout << output;
     }
 
     if (decypher)
@@ -113,14 +114,19 @@ int main(int argc, char *argv[])
             output = decryptDiferente(output);
             output = outShuffle(output, key, true);
         }
+        else if (shuffle)
+        {
+            output = outShuffle(input, key, true);
+        }
         else
         {
             output = decrypt(input, key, 5);
             output = ABCS31427::decode(output, key);
             output = outShuffle(output, key, true);
         }
-        cout << output;
     }
+
+    cout << output;
 
     return EXIT_SUCCESS;
 }
