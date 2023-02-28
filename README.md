@@ -78,17 +78,17 @@
 ### Shuffle
 
 * Cifra baseado no Faro Shuffle realizando Perfect Shuffles.
-* Utiliza out-shuffles para atingir O Perfect Shuffle em uma quantidade de passos razuavel.
+* Utiliza out-shuffles para atingir O Perfect Shuffle em uma quantidade de passos razoável.
  * In-shuffle precisa de uma quantidade muito maior para atingir o Perfect Shuffle, então o seu uso foi descartado.
 
-* Realiza o shuffle em blocos de tamanhos variaveis dependendo do tamanho do texto a ser criptografado.
+* Realiza o shuffle em blocos de tamanhos variáveis dependendo do tamanho do texto a ser criptografado.
 * Recursivo com seus blocos.
-* Chave transformada em um numero maior que 1 e menor que a metade da quantidade de out shuffles necessarios para o tamanho do deck atingir o perfect shuffle.
+* Chave transformada em um número maior que 1 e menor que a metade da quantidade de out shuffles necessários para o tamanho do deck atingir o perfect shuffle.
 
-* Apenas com o uso do shuffle o texto fica bem dificil de ler, porem ainda é possivel reconhecer algumas palavras.
-  * Melhor uso, realizado antes de outro algoritmo de preferencia um algoritmo de substituição.
+* Apenas com o uso do shuffle o texto fica bem difícil de ler, porém ainda é possível reconhecer algumas palavras.
+  * Melhor uso, realizado antes de outro algoritmo de preferência um algoritmo de substituição.
 
 * Problemas:
   * Com o uso do out shuffle a primeira "carta", sempre se mantem no mesmo lugar, no caso na primeira posição.
   * Por causa dos tamanhos fixos dos blocos e do deck o texto pode possuir uma tail que não entra dentro no deck do resto do texto.
-    * Essa tail é chamada recursivamente, então tambem é criptografada.
+    * Essa tail é chamada recursivamente, então também é criptografada.
