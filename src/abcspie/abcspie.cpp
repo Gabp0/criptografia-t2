@@ -104,38 +104,6 @@ unsigned int ABCS31427::roundOffset(int round, bool inv, size_t mod)
     return ui_roffset;
 }
 
-unsigned int ABCS31427::offsetModE(int round)
-{
-    // inicializa lib gmp
-    mpz_t offset;
-    mpz_init(offset);
-    mpz_t ep_pos;
-    mpz_init(ep_pos);
-
-    // calcula a key da rodada atual
-    mpz_set_ui(offset, abs(~ABCS31427::f_offset)); // modulo do inverso do offset
-    mpz_pow_ui(offset, offset, pow(2, round));
-    mpz_mod_ui(ep_pos, offset, ep.size() - 3);
-
-    return mpz_get_ui(ep_pos);
-}
-
-unsigned int ABCS31427::offsetModPi(int round)
-{
-    // inicializa lib gmp
-    mpz_t offset;
-    mpz_init(offset);
-    mpz_t pip_pos;
-    mpz_init(pip_pos);
-
-    // calcula o offset da rodada atual
-    mpz_set_ui(offset, ABCS31427::f_offset);
-    mpz_pow_ui(offset, offset, pow(2, round));
-    mpz_mod_ui(pip_pos, offset, pip.size());
-
-    return mpz_get_ui(pip_pos);
-}
-
 string shiftRows(string sub, unsigned int shift, int s)
 {
     shift = shift % sub.size();
@@ -178,7 +146,8 @@ string ABCS31427::shiftRowsPi(string sub, unsigned int offset, int s)
 
 int ABCS31427::railfenceKey(unsigned int off_mod)
 {
-    return (ep[off_mod % ep.size()] - '0') * 10 + (ep[(off_mod % ep.size()) + 1] - '0') + 2;
+    unsigned int pos = ep.size() - (off_mod % ep.size());
+    return (ep[pos] - '0') * 10 + (ep[pos - 1] - '0') + 2;
 }
 
 string ABCS31427::encryptRailfence(string sub, int key)

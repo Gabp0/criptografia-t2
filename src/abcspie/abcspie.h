@@ -36,8 +36,6 @@ private:
     static string treatment(string input);
     static void initIrrPower(int pow);
     static string convertKey(string key);
-    static unsigned int offsetModE(int round);
-    static unsigned int offsetModPi(int round);
 
     static unsigned int roundOffset(int round, bool inv, size_t mod);
 
